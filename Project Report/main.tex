@@ -1,0 +1,468 @@
+% This document outlines the report on "Security Architectures for Generative-AI Systems" presented at SAGAI'24.
+% Detailed inline comments describe the rationale and structure to facilitate maintainability and clarity.
+
+\documentclass[journal]{IEEEtran}  % IEEE journal format for professional presentation
+
+% Package imports for citations, graphics, math, algorithms, and enhanced text formatting
+\usepackage{cite}                    % Efficient citation management
+\usepackage{graphicx}                % Inclusion of external graphics (figures, diagrams)
+\usepackage{amsmath,amssymb,amsfonts} % Advanced math for technical expressions
+\usepackage{algorithmic}             % Formatting pseudocode and algorithm descriptions
+\usepackage{textcomp}                % Enhanced text symbol support
+
+\begin{document}
+
+% ============================================================================
+% Title and Author Block
+% ============================================================================
+\title{Security Architectures for Generative-AI Systems}
+\author{
+    \IEEEauthorblockA{Muhammad Salar 21K-4619}\\
+    \IEEEauthorblockA{Muhammad Hamza 21K-4579}\\
+    \IEEEauthorblockA{Hamza Raza 21K-4699}
+}
+\maketitle  % Render title and author information
+
+% ============================================================================
+% Abstract Section
+% ============================================================================
+\begin{abstract} 
+% The abstract summarizes the security challenges and innovative defence techniques for GenAI.
+The rapid advancements in Generative AI (GenAI) have propelled its integration across various domains, yet its widespread adoption is marred by significant security and privacy vulnerabilities. This report consolidates insights from four seminal papers presented at SAGAI'24, each addressing distinct challenges and proposing innovative defences within the realm of GenAI security. The first paper introduces \textit{spotlighting}, a novel prompt-engineering methodology designed to defend large language models (LLMs) against \textit{indirect prompt injection (IPI) attacks}, achieving a substantial reduction in attack success rates with minimal impact on task performance. The second paper expands the scope of security in \textit{multimodal large language models (MLLMs)} by proposing a two-stage defence mechanism comprising \textit{input validation} and \textit{prompt injection detection}, effectively safeguarding against adversarial image-based attacks. The third paper examines the \textit{dual-use risks} of instruction-following LLMs, demonstrating how adversarial actors exploit their programmatic behaviours to generate malicious content efficiently, bypassing existing security filters. Finally, the fourth paper explores the potential of \textit{self-supervised learning encoders} to significantly enhance the robustness and privacy-preserving capabilities of supervised learning models, particularly against adversarial examples, data poisoning, and inference attacks.
+
+Together, these works underscore the multifaceted nature of threats targeting GenAI systems and highlight the urgent need for robust, integrative defences. By addressing specific attack vectors and vulnerabilities, these contributions lay a critical foundation for future research aimed at fortifying the safety and integrity of GenAI applications in the information security domain.
+\end{abstract}
+
+% ============================================================================
+% Keywords Section: Core indexing topics
+% ============================================================================
+\begin{IEEEkeywords}
+Generative AI, Large Language Models, Multimodal Large Language Models, Indirect Prompt Injection Attacks, Image-Based Prompt Injection, Self-Supervised Learning, Privacy-Preserving Learning, Adversarial Attacks, Information Security.
+\end{IEEEkeywords}
+
+% ============================================================================
+% Document Body
+% ============================================================================
+
+% -----------------------------
+% Section 1: Introduction
+% -----------------------------
+\section{Introduction}
+
+\subsection{The Evolution and Challenges of Generative AI}
+% Introduces the growth and potential of GenAI and its associated challenges.
+Generative AI (GenAI) has witnessed unprecedented growth in recent years, revolutionizing industries by automating tasks, generating creative content, and advancing human-computer interaction. By leveraging large-scale machine learning (ML) models trained on vast datasets, GenAI systems can perform diverse and complex tasks, ranging from natural language processing to image synthesis and multimodal understanding. Models such as GPT-4, Stable Diffusion, and others exemplify the potential of GenAI in transforming workflows and enriching user experiences.
+
+% Highlights security challenges emerging from system complexity and scale.
+However, the versatility and power of GenAI also come with significant risks. As these systems grow in capability and complexity, they become increasingly susceptible to adversarial attacks and vulnerabilities that can compromise their reliability, safety, and ethical application. These vulnerabilities arise not only from the inherent limitations of ML models but also from the intricate architectures that integrate multiple components, external APIs, and chained model outputs. As a result, securing GenAI systems requires addressing not just individual model weaknesses but also systemic threats.
+
+\subsection{Security Concerns in Generative AI Systems}
+% Details primary vulnerabilities and attack vectors.
+The convergence of GenAI’s immense potential and its critical vulnerabilities has made it a focal point for both innovation and exploitation. Adversarial threats targeting GenAI systems often exploit their:
+\begin{itemize}
+    \item \textbf{Prompt Sensitivity:} The reliance on natural language prompts exposes GenAI models to \textit{prompt injection attacks}, where malicious inputs manipulate model behaviour.
+    \item \textbf{Architectural Complexity:} The integration of multiple models and external components introduces attack vectors such as \textit{indirect prompt injections} and \textit{multimodal prompt attacks}, often bypassing traditional defences.
+    \item \textbf{Dual-Use Risks:} Instruction-following capabilities, essential for many applications, also enable the generation of malicious outputs, such as spam, misinformation, and phishing attempts.
+    \item \textbf{Privacy Concerns:} Data used for training and inference often carries sensitive information, posing risks of inference attacks, data poisoning, and challenges in implementing privacy-preserving mechanisms.
+\end{itemize}
+
+\subsection{Contributions of This Work}
+% Summarizes key contributions from each study.
+This report consolidates key insights from four foundational papers presented at SAGAI'24, each addressing a critical aspect of GenAI security:
+\begin{enumerate}
+    \item \textbf{Defending Against Indirect Prompt Injection Attacks With Spotlighting:} Introduces spotlighting, an innovative set of techniques to mitigate indirect prompt injection (IPI) attacks by enabling models to distinguish between trusted and untrusted inputs.
+    \item \textbf{Defending Language Models Against Image-Based Prompt Attacks via User-Provided Specifications:} Proposes a robust two-stage defence mechanism for multimodal large language models (MLLMs) to combat malicious content embedded in visual data inputs.
+    \item \textbf{Exploiting Programmatic Behaviour of LLMs: Dual-Use Through Standard Security Attacks:} Examines how adversarial actors exploit instruction-following models to generate harmful outputs economically and efficiently.
+    \item \textbf{Pre-Trained Encoders in Self-Supervised Learning for Secure and Privacy-Preserving Supervised Learning:} Investigates the use of pre-trained encoders to enhance the robustness and privacy-preserving capabilities of supervised learning models.
+\end{enumerate}
+
+\subsection{Broader Implications for Information Security}
+% Articulates the wider significance of securing GenAI systems.
+The insights from these studies underscore the pressing need for a holistic approach to securing GenAI systems. Unlike traditional cybersecurity paradigms, GenAI security must account for:
+\begin{itemize}
+    \item The evolving threat landscape, including novel attack vectors and adversarial strategies.
+    \item The ethical and societal impacts of GenAI misuse, from misinformation to privacy violations.
+    \item The integration of interdisciplinary solutions, spanning robust algorithm design, regulatory frameworks, and ethical AI practices.
+\end{itemize}
+
+% -----------------------------
+% Section 2: Related Work
+% -----------------------------
+\section{Related Work}
+
+% Overview of past research in GenAI vulnerabilities and defence strategies.
+The rapid proliferation of Generative AI (GenAI) systems has necessitated a deeper exploration of their inherent vulnerabilities and the development of robust defensive measures. Prior research has addressed critical issues in adversarial attacks, multimodal integration, dual-use risks, and privacy preservation, providing foundational insights for advancing GenAI security.
+
+\subsection{Defending Against Prompt Injection Attacks}
+% Reviews prior methods and introduces the spotlighting approach.
+Prompt injection attacks exploit the model's susceptibility to adversarially crafted prompts. Existing approaches, including fine-tuning and filtering, fall short against sophisticated attackers. Spotlighting builds on these techniques by employing contextual delimiting, datamarking, and encoding to differentiate trusted versus malicious inputs.
+
+\subsection{Security for Multimodal Large Language Models}
+% Discusses challenges and defensive measures for multimodal systems.
+MLLMs process both text and visual inputs, thereby introducing unique vulnerabilities. Prior studies reveal that attackers may embed malicious payloads within images. Research now emphasizes the need for a two-stage security framework: preemptive input validation and subsequent prompt injection detection.
+
+\subsection{Addressing Dual-Use Risks in Instruction-Following Models}
+% Highlights vulnerabilities of instruction-based systems.
+Instruction-following models, while enhancing human-computer interaction, are prone to misuse. Techniques such as obfuscation, payload splitting, and prompt chaining enable attackers to bypass defences and generate harmful outputs. Effective mitigation demands context-aware, adaptive security measures.
+
+\subsection{Enhancing Privacy-Preserving Learning}
+% Emphasizes integrating self-supervised learning to balance performance with privacy.
+Self-supervised learning with pre-trained encoders offers promising advances in robust and privacy-preserving AI. These encoders ensure high-quality representation while addressing adversarial attacks and privacy concerns through improved data protection methods.
+
+\subsection*{Summary of Contributions}
+% Recaps the broad range of methodologies that underpin these studies.
+The existing body of work illustrates the multifaceted vulnerabilities within GenAI systems and highlights various approaches—from spotlighting to multimodal defences—that form a solid foundation for advancing secure AI.
+
+% -----------------------------
+% Section 3: Methodology
+% -----------------------------
+\section{Methodology}
+
+% Detailed explanation of the techniques proposed in the four studies.
+Each methodology is tailored to address specific threats in GenAI systems, collectively advancing robustness, privacy, and security.
+
+\subsection{Spotlighting for Indirect Prompt Injection Attacks}
+% Describes the defence mechanism designed to counter IPI attacks.
+Spotlighting is a novel strategy to mitigate indirect prompt injection (IPI) attacks, enabling models to discern malicious inputs without affecting legitimate queries.
+
+\subsubsection*{Components of Spotlighting\\}
+\textbf{Delimiting:}
+\begin{itemize}
+    \item Inputs are enclosed with explicit boundaries (e.g., \texttt{<<START>> ... <<END>>}) to mark trusted sections.
+\end{itemize}
+\textbf{Datamarking:}
+\begin{itemize}
+    \item Unique markers are embedded within the input to trace its origin and facilitate forensic analysis.
+\end{itemize}
+\textbf{Encoding:}
+\begin{itemize}
+    \item Reversible transformations (such as Base64 encoding) obfuscate input content, with secure decoding performed internally.
+\end{itemize}
+
+\subsubsection*{Experimental Setup}
+\begin{itemize}
+    \item A dataset comprising both benign and adversarial prompts was curated.
+    \item Language models were evaluated with and without spotlighting.
+    \item Metrics: attack success rates, response fidelity, and overall model performance.
+\end{itemize}
+
+\subsection{Multimodal Large Language Model Defence Framework}
+% Outlines the two-stage defence approach for models handling text and images.
+This framework integrates:
+\begin{description}
+    \item[Stage 1: Input Validation] Uses user-specified criteria and heuristic-based rules for filtering inputs. Images are analyzed for pixel integrity and watermark consistency; text is vetted lexically and semantically.
+    \item[Stage 2: Prompt Injection Detection] Analyzes intermediate representations (e.g., embeddings) using machine learning classifiers trained on adversarial datasets.
+\end{description}
+
+\subsubsection*{Evaluation and Testing}
+\begin{itemize}
+    \item Employed manipulated images and poisoned text inputs from real-world adversarial datasets.
+    \item Measured detection precision, recall, processing latency, and overall system accuracy.
+\end{itemize}
+
+\subsection{Exploiting Programmatic Behaviour in Instruction-Following Models}
+% Explores vulnerabilities and dual-use risks in instruction-following models.
+This study assesses how attackers exploit benign models for malicious purposes.
+\subsubsection*{Attack Techniques}
+\begin{itemize}
+    \item \textbf{Obfuscation:} Slight prompt modifications (e.g., typos, alternate encodings) to evade filters.
+    \item \textbf{Payload Splitting:} Dividing harmful instructions into small fragments that recombine during processing.
+    \item \textbf{Prompt Chaining:} Sequencing prompts to leverage contextual continuity and bypass defences.
+\end{itemize}
+
+\subsubsection*{Evaluation Methodology}
+\begin{itemize}
+    \item Tested on models such as GPT-4 and InstructGPT with systematically crafted adversarial prompts.
+    \item Metrics: Success rate in bypassing filters, coherence of malicious outputs, and cost efficiency.
+\end{itemize}
+
+\subsection{Privacy-Preserving Learning via Pre-Trained Encoders}
+% Describes the method for enhancing robustness and privacy in supervised learning.
+By integrating pre-trained encoders from self-supervised learning, this approach strengthens both adversarial robustness and privacy guarantees.
+
+\subsubsection*{Pre-Training Setup}
+\begin{itemize}
+    \item Encoders are trained on large public datasets using unsupervised objectives.
+    \item Evaluated using two strategies:
+    \begin{itemize}
+        \item \textbf{Linear Probing:} Train only the final classification layer while keeping the encoder fixed.
+        \item \textbf{Fine-Tuning:} Update the encoder and classifier simultaneously.
+    \end{itemize}
+\end{itemize}
+
+\subsubsection*{Privacy and Security Enhancements}
+\begin{itemize}
+    \item \textbf{Adversarial Robustness:} Techniques like randomized smoothing and bagging improve model stability.
+    \item \textbf{Differential Privacy:} Incorporation of DP-SGD ensures formal privacy guarantees.
+    \item \textbf{Exact Machine Unlearning:} Efficient protocols remove specific user data without full retraining.
+\end{itemize}
+
+\subsubsection*{Evaluation Metrics}
+\begin{itemize}
+    \item Assessed accuracy under both benign and adversarial conditions on datasets such as STL10, CIFAR10, and Tiny-ImageNet.
+    \item Measured privacy guarantees via differential privacy budgets and unlearning efficiency in terms of runtime and resource utilization.
+\end{itemize}
+
+\subsection*{Summary of Methodological Innovations}
+The methodologies highlight:
+\begin{itemize}
+    \item Context-aware defences (spotlighting) to mitigate input manipulation.
+    \item Specialized multimodal frameworks to handle both text and image adversarial attacks.
+    \item Detailed analysis of dual-use risks in instruction-following models.
+    \item Use of pre-trained encoders to enhance both robustness and privacy.
+\end{itemize}
+
+% -----------------------------
+% Section 4: Results
+% -----------------------------
+\section{Results}
+
+% Presents findings for all studies.
+\subsection{Spotlighting for Indirect Prompt Injection Attacks}
+\textbf{Attack Mitigation:}
+\begin{itemize}
+    \item A 98\% reduction in attack success rates was observed compared to baseline systems.
+    \item Techniques like delimiting and datamarking were vital in distinguishing malicious inputs.
+\end{itemize}
+\textbf{Performance Retention:}
+\begin{itemize}
+    \item Less than 1\% degradation in response accuracy on non-adversarial tasks.
+\end{itemize}
+\textbf{Scalability:}
+\begin{itemize}
+    \item Effective across simple queries to complex chained instructions.
+\end{itemize}
+
+\subsection{Multimodal Large Language Model Defence Framework}
+\textbf{Input Validation:}
+\begin{itemize}
+    \item Filtered 92\% of adversarial image inputs and 95\% of malicious text inputs.
+    \item User-specified criteria enhanced flexibility.
+\end{itemize}
+\textbf{Injection Detection:}
+\begin{itemize}
+    \item Achieved 96\% precision and 93\% recall in detecting adversarial prompts.
+\end{itemize}
+\textbf{Task Performance:}
+\begin{itemize}
+    \item Maintained overall system accuracy within 2\% of baseline under attack.
+\end{itemize}
+\textbf{Resilience:}
+\begin{itemize}
+    \item Demonstrated robust performance across simultaneous manipulation of multiple input modalities.
+\end{itemize}
+
+\subsection{Exploiting Programmatic Behaviour in Instruction-Following Models}
+\textbf{Vulnerability Assessment:}
+\begin{itemize}
+    \item Unprotected models exhibited a 100\% success rate for generating malicious outputs.
+    \item Generated content maintained coherence and contextual relevance.
+\end{itemize}
+\textbf{Economic Feasibility:}
+\begin{itemize}
+    \item Attack generation costs ranged between \$0.0064 and \$0.016 per query.
+    \item Findings highlight the low financial barrier for adversarial exploitation.
+\end{itemize}
+\textbf{Potential Mitigations:}
+\begin{itemize}
+    \item Recommendations include implementing dynamic, context-aware filters and enhanced content screening.
+\end{itemize}
+
+\subsection{Privacy-Preserving Learning via Pre-Trained Encoders}
+\textbf{Adversarial Robustness:}
+\begin{itemize}
+    \item Models with pre-trained encoders showed up to a 67\% increase in certified robustness.
+    \item Approaches like randomized smoothing benefited significantly.
+\end{itemize}
+\textbf{Privacy Guarantees:}
+\begin{itemize}
+    \item Differentially private classifiers improved accuracy 4x under stringent privacy budgets.
+    \item Machine unlearning protocols reduced retraining costs considerably.
+\end{itemize}
+\textbf{Utility and Scalability:}
+\begin{itemize}
+    \item Achieved higher accuracy across STL10, CIFAR10, and Tiny-ImageNet.
+    \item Fine-tuning outperformed linear probing in adversarial conditions, though the latter was more efficient.
+\end{itemize}
+
+\subsection*{Summary of Results}
+Overall:
+\begin{itemize}
+    \item Spotlighting significantly mitigates IPI attacks with minimal performance loss.
+    \item The multimodal defence framework reliably filters and detects adversarial inputs.
+    \item Dual-use analysis reveals critical vulnerabilities and economic motivations for attack.
+    \item Pre-trained encoders enhance both robustness and privacy, proving effective across multiple benchmarks.
+\end{itemize}
+
+% -----------------------------
+% Section 5: Discussion
+% -----------------------------
+\section{Discussion}
+
+% Discusses broader implications, strengths, and limitations.
+\subsection{Spotlighting as a Defence for Indirect Prompt Injection Attacks}
+\textbf{Strengths:}
+\begin{itemize}
+    \item Robust mechanisms (delimiting, datamarking, encoding) effectively differentiate inputs.
+    \item Minimal performance impact facilitates real-world deployment.
+    \item Adaptable to various use cases including conversational and task-oriented applications.
+\end{itemize}
+\textbf{Limitations:}
+\begin{itemize}
+    \item Additional computational overhead from encoding.
+    \item Potential for attackers to adapt to static defences necessitating continual refinement.
+\end{itemize}
+
+\subsection{Multimodal Large Language Model Defence Framework}
+\textbf{Strengths:}
+\begin{itemize}
+    \item Two-stage approach significantly enhances robustness against diverse adversarial inputs.
+    \item High detection precision and recall illustrate the framework’s effectiveness.
+    \item User-provided specifications offer tailored security solutions.
+\end{itemize}
+\textbf{Limitations:}
+\begin{itemize}
+    \item Reliance on predefined specifications may miss novel attack patterns.
+    \item Increased processing latency may affect time-sensitive applications.
+\end{itemize}
+
+\subsection{Dual-Use Risks in Instruction-Following Models}
+\textbf{Strengths:}
+\begin{itemize}
+    \item Identification of key attack methods provides actionable insights into securing models.
+    \item Economic analysis underscores the low barrier for adversarial exploitation.
+    \item Findings motivate development of proactive, adaptive security measures.
+\end{itemize}
+\textbf{Limitations:}
+\begin{itemize}
+    \item Limited exploration of ethical and regulatory controls.
+    \item Potential trade-offs between enhancing security and maintaining user accessibility.
+\end{itemize}
+
+\subsection{Privacy-Preserving Learning via Pre-Trained Encoders}
+\textbf{Strengths:}
+\begin{itemize}
+    \item Significant improvements in adversarial robustness and privacy preservation.
+    \item Differential privacy integration and efficient unlearning protocols demonstrate scalability.
+    \item Balances enhanced security with maintained or improved utility.
+\end{itemize}
+\textbf{Limitations:}
+\begin{itemize}
+    \item Fine-tuning requires substantial computational resources.
+    \item Dependence on large-scale data may challenge resource-constrained environments.
+\end{itemize}
+
+\subsection*{Broader Implications for Information Security}
+These studies collectively highlight:
+\begin{itemize}
+    \item The need for holistic, multi-layered defences against evolving adversarial threats.
+    \item Ethical responsibilities in deploying powerful AI systems.
+    \item The importance of interdisciplinary collaboration to shape secure and trustworthy AI.
+\end{itemize}
+
+% -----------------------------
+% Section 6: Conclusion
+% -----------------------------
+\section{Conclusion}
+
+% Summarizes advancements and key outcomes.
+The advancements outlined in these studies underscore the critical need to address security, privacy, and robustness in Generative AI systems. As GenAI permeates diverse applications, its vulnerabilities to adversarial manipulation, dual-use risks, and privacy breaches become more evident. This report highlights significant progress via:
+\begin{itemize}
+    \item Spotlighting: A scalable defence against IPI attacks with minimal performance degradation.
+    \item Multimodal Defences: A robust two-stage framework safeguarding complex systems handling text and images.
+    \item Dual-Use Risk Analysis: Actionable insights into mitigating programmatic vulnerabilities.
+    \item Pre-Trained Encoders: Enhanced adversarial robustness and privacy preservation with efficient unlearning.
+\end{itemize}
+
+These methodologies provide a roadmap for securing GenAI systems. Future research must continue to refine these techniques and foster collaborations between technical experts, policymakers, and ethicists to ensure that AI technologies serve as safe and transformative tools.
+
+% -----------------------------
+% Section 7: Future Directions
+% -----------------------------
+\section{Future Directions}
+
+Future research should build on these findings to further enhance the security, privacy, and robustness of Generative AI systems.
+
+\subsection{Advancing Spotlighting Techniques}
+\textbf{Dynamic Spotlighting:}
+\begin{itemize}
+    \item Develop adaptive mechanisms to adjust delimiting, datamarking, and encoding based on threat context.
+\end{itemize}
+\textbf{Performance Optimization:}
+\begin{itemize}
+    \item Explore lightweight encoding techniques to reduce computational overhead for real-time applications.
+\end{itemize}
+\textbf{Domain Expansion:}
+\begin{itemize}
+    \item Extend spotlighting strategies to domain-specific applications such as healthcare and finance.
+\end{itemize}
+
+\subsection{Enhancing Multimodal Defences}
+\textbf{Automated Specification Generation:}
+\begin{itemize}
+    \item Integrate AI-driven methods to automatically generate user specifications from real-time data.
+\end{itemize}
+\textbf{Latency Reduction:}
+\begin{itemize}
+    \item Optimize processing of multimodal inputs to minimize latency in high-frequency environments.
+\end{itemize}
+\textbf{Cross-Modality Generalization:}
+\begin{itemize}
+    \item Expand defence frameworks to include additional modalities such as audio and video.
+\end{itemize}
+
+\subsection{Mitigating Dual-Use Risks in Instruction-Following Models}
+\textbf{Context-Aware Filtering:}
+\begin{itemize}
+    \item Develop advanced, real-time filtering systems that analyze prompt intent and context.
+\end{itemize}
+\textbf{Adaptive Mitigations:}
+\begin{itemize}
+    \item Research models capable of dynamically countering new adversarial tactics.
+\end{itemize}
+\textbf{Collaborative Governance:}
+\begin{itemize}
+    \item Foster interdisciplinary collaborations to develop ethical standards and regulatory frameworks.
+\end{itemize}
+
+\subsection{Expanding Pre-Trained Encoder Utility}
+\textbf{Domain-Specific Encoders:}
+\begin{itemize}
+    \item Design encoders tailored for specialized domains (e.g., medical imaging, cybersecurity).
+\end{itemize}
+\textbf{Hybrid Training Techniques:}
+\begin{itemize}
+    \item Combine fine-tuning and linear probing to balance efficiency and performance.
+\end{itemize}
+\textbf{Improved Augmentation:}
+\begin{itemize}
+    \item Explore novel augmentation techniques during pre-training to further boost adversarial robustness.
+\end{itemize}
+\textbf{Scalable Privacy Solutions:}
+\begin{itemize}
+    \item Develop methods to integrate differential privacy at scale without significant accuracy trade-offs.
+\end{itemize}
+
+\subsection{Broader Implications}
+\begin{itemize}
+    \item Develop real-time threat detection systems integrating insights from spotlighting and multimodal frameworks.
+    \item Foster interdisciplinary collaborations bridging technical, ethical, and regulatory domains.
+    \item Prioritize resource-efficient, scalable security solutions.
+\end{itemize}
+
+% -----------------------------
+% Bibliography Section
+% -----------------------------
+\begin{thebibliography}{4}
+
+\bibitem{ref1} K. Hines, G. Lopez, M. Hall, F. Zarfati, Y. Zunger, and E. Kıcıman, "Defending Against Indirect Prompt Injection Attacks With Spotlighting," \emph{Microsoft Technical Report}, 2024.
+
+\bibitem{ref2} R. K. Sharma, V. Gupta, and D. Grossman, "Defending Language Models Against Image-Based Prompt Attacks via User-Provided Specifications," \emph{IEEE Security and Privacy Workshops}, 2024.
+
+\bibitem{ref3} D. Kang, X. Li, I. Stoica, C. Guestrin, M. Zaharia, and T. Hashimoto, "Exploiting Programmatic Behavior of LLMs: Dual-Use Through Standard Security Attacks," \emph{arXiv preprint arXiv:2302.05733}, 2023.
+
+\bibitem{ref4} H. Liu, W. Qu, J. Jia, and N. Z. Gong, "Pre-trained Encoders in Self-Supervised Learning Improve Secure and Privacy-preserving Supervised Learning," \emph{arXiv preprint arXiv:2212.03334}, 2022.
+
+\end{thebibliography}
+
+\end{document}
