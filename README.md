@@ -1,9 +1,6 @@
 # SAGAI'24 Security Architectures Analysis
 > Comprehensive analysis of state-of-the-art security architectures for Generative AI systems, examining defense mechanisms, vulnerabilities, and privacy preservation techniques.
 
-![GitHub](https://img.shields.io/github/license/muhammadhamzagova666/SAGAI24-Security-Analysis)
-![GitHub last commit](https://img.shields.io/github/last-commit/muhammadhamzagova666/SAGAI24-Security-Analysis)
-
 ## 📚 Overview
 
 This repository contains a detailed analysis and summary of four seminal papers presented at the Security Architectures for Generative-AI Systems (SAGAI'24) conference. The project examines cutting-edge research in GenAI security, focusing on:
